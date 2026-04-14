@@ -1,4 +1,13 @@
-package io
+package timer
+
+const (
+	IF_ADDRESS uint16 = 0xFF0F
+
+	DIV_ADDRESS  uint16 = 0xFF04
+	TIMA_ADDRESS uint16 = 0xFF05
+	TMA_ADDRESS  uint16 = 0xFF06
+	TAC_ADDRESS  uint16 = 0xFF07
+)
 
 // Reference https://github.com/Ashiepaws/GBEDG/blob/master/timers/index.md
 

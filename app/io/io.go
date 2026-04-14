@@ -3,6 +3,7 @@ package io
 import (
 	"goboy/app/joypad"
 	"goboy/app/ppu"
+	"goboy/app/timer"
 )
 
 const (
@@ -34,14 +35,14 @@ const (
 )
 
 type IO struct {
-	timer  *Timer
+	timer  *timer.Timer
 	ppu    *ppu.PPU
 	joypad *joypad.Joypad
 
 	IF uint8
 }
 
-func NewIO(timer *Timer, ppu *ppu.PPU, joypad *joypad.Joypad) *IO {
+func NewIO(timer *timer.Timer, ppu *ppu.PPU, joypad *joypad.Joypad) *IO {
 	return &IO{
 		timer:  timer,
 		ppu:    ppu,
