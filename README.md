@@ -9,9 +9,15 @@ Welcome to **GoBoy**, a Game Boy (DMG) emulator written in Go and Ebitengine
 - **C Compiler** (GCC or Clang) for Ebitengine's dependencies (OpenGL/ALSA on Linux).
 
 ### Build and Run
+Locally:
 ```bash
 > go build -o goboy app/main.go
 > ./goboy [flags] roms/YourGame.gb
+```
+WASM (on Nginx):
+```bash
+> docker build -t goboy:latest .
+> docker run -p 8080:80 goboy:latest
 ```
 
 **Flags:**
