@@ -46,5 +46,5 @@ Several hardware features and optimizations are still in development:
   - Refine timer behavior to ensure they continue ticking during `HALT` but pause during `STOP`. (low priority / not important)
 - [ ] **Input**:
   - Fully implement the Joypad interrupt (low priority / not important).
-- [] **Audio (APU)**:
+- [ ] **Audio (APU)**:
   - Implementation of Pulse, Wave, and Noise channels for full sound support. (low priority)
