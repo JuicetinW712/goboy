@@ -23,7 +23,7 @@ func getMBCType(code uint8) MBCType {
 	switch code {
 	case 0x00:
 		return TYPE_ROM_ONLY
-	case 0x01:
+	case 0x01, 0x02, 0x03:
 		return TYPE_MBC1
 	case 0x0F, 0x10, 0x11, 0x12, 0x13:
 		return TYPE_MBC3

@@ -14,6 +14,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 const (
@@ -32,6 +33,10 @@ type Game struct {
 
 	debugOn bool
 	sync    bool
+	pause   bool
+	speed   uint32
+
+	originalFilterEnabled bool
 }
 
 func NewGame(cart *cartridge.Cartridge, debug bool, sync bool, scale int) *Game {
@@ -43,14 +48,16 @@ func NewGame(cart *cartridge.Cartridge, debug bool, sync bool, scale int) *Game 
 	c := cpu.CreateCPU(b)
 
 	game := &Game{
-		cpu:     c,
-		bus:     b,
-		timer:   t,
-		joypad:  j,
-		ppu:     p,
-		io:      i,
-		debugOn: debug,
-		sync:    sync,
+		cpu:                   c,
+		bus:                   b,
+		timer:                 t,
+		joypad:                j,
+		ppu:                   p,
+		io:                    i,
+		debugOn:               debug,
+		sync:                  sync,
+		speed:                 1,
+		originalFilterEnabled: false,
 	}
 
 	// Pass in functions to handle interrupts
@@ -84,9 +91,16 @@ func NewGame(cart *cartridge.Cartridge, debug bool, sync bool, scale int) *Game 
 func (g *Game) Update() error {
 	const cyclesPerFrame = 70224
 	g.updateInput()
+	g.updatePauseState()
+	g.updateSpeed()
+	g.updateFilter()
+
+	if g.pause {
+		return nil
+	}
 
 	cyclesRan := uint32(0)
-	for cyclesRan < cyclesPerFrame {
+	for cyclesRan < (cyclesPerFrame * g.speed) {
 		cycles := g.cpu.Step()
 
 		for i := 0; i < int(cycles); i++ {
@@ -118,7 +132,12 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 			game.WritePixels(g.ppu.Buffer.Pix)
 		}
 
-		screen.DrawImage(game, &ebiten.DrawImageOptions{})
+		opt := &ebiten.DrawImageOptions{}
+		if g.originalFilterEnabled {
+			opt.ColorScale.Scale(0.608, 0.737, 0.059, 1.0)
+		}
+
+		screen.DrawImage(game, opt)
 	} else {
 		if g.sync {
 			screen.WritePixels(g.ppu.Image.Pix)
@@ -136,9 +155,10 @@ func (g *Game) drawDebugPanel(screen *ebiten.Image) {
 	timerState := g.timer.GetTimerState()
 
 	stats := fmt.Sprintf(
-		"FPS: %0.2f TPS: %0.2f\nAF:  %04X PC:  %04X\nBC:  %04X SP:  %04X\nDE:  %04X HL:  %04X\nIME: %t\n"+
+		"FPS: %0.2f TPS: %0.2f\nSpeed: %d\nAF:  %04X PC:  %04X\nBC:  %04X SP:  %04X\nDE:  %04X HL:  %04X\nIME: %t\n"+
 			"FLAGS: %s\nDIV: %04X TIMA: %02X\nTMA: %02X   TAC:  %02X",
 		ebiten.ActualFPS(), ebiten.ActualTPS(),
+		g.speed,
 		registerState.AF, registerState.PC,
 		registerState.BC, registerState.SP,
 		registerState.DE,
@@ -181,5 +201,35 @@ func (g *Game) updateKeyState(key ebiten.Key, mapping joypad.Button) {
 		g.joypad.PressButton(mapping)
 	} else {
 		g.joypad.ReleaseButton(mapping)
+	}
+}
+
+func (g *Game) updatePauseState() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		g.pause = !g.pause
+	}
+}
+
+func (g *Game) updateSpeed() {
+	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key1) {
+		g.speed = 1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key2) {
+		g.speed = 2
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key3) {
+		g.speed = 3
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key4) {
+		g.speed = 4
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key5) {
+		g.speed = 5
+	}
+}
+
+func (g *Game) updateFilter() {
+	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.KeyG) {
+		g.originalFilterEnabled = !g.originalFilterEnabled
 	}
 }
