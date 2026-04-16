@@ -38,7 +38,13 @@ func main() {
 	game := app.NewGame(cart, *debug, !*noSync, *scale)
 
 	if saveFile != nil {
-		game.LoadSaveState()
+		saveState, err := app.LoadSaveFromFile(*saveFile)
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+
+		game.LoadSaveState(saveState)
 	}
 
 	ebiten.SetWindowTitle("GoBoy")

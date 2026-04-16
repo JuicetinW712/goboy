@@ -214,35 +214,39 @@ func (g *Game) updatePauseState() {
 }
 
 func (g *Game) updateSpeed() {
-	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key1) {
+	if g.isCombinationPressed(ebiten.KeyControl, ebiten.Key1) {
 		g.speed = 1
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key2) {
+	if g.isCombinationPressed(ebiten.KeyControl, ebiten.Key2) {
 		g.speed = 2
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key3) {
+	if g.isCombinationPressed(ebiten.KeyControl, ebiten.Key3) {
 		g.speed = 3
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key4) {
+	if g.isCombinationPressed(ebiten.KeyControl, ebiten.Key4) {
 		g.speed = 4
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.Key5) {
+	if g.isCombinationPressed(ebiten.KeyControl, ebiten.Key5) {
 		g.speed = 5
 	}
 }
 
 func (g *Game) updateFilter() {
-	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.KeyG) {
+	if g.isCombinationPressed(ebiten.KeyControl, ebiten.KeyG) {
 		g.originalFilterEnabled = !g.originalFilterEnabled
 	}
 }
 
 func (g *Game) updateSaveState() {
-	if !ebiten.IsKeyPressed(ebiten.KeyControl) || !inpututil.IsKeyJustPressed(ebiten.KeyS) {
+	if !g.isCombinationPressed(ebiten.KeyControl, ebiten.KeyS) {
 		return
 	}
 
 	if err := g.SaveState(); err != nil {
 		fmt.Println("Failed to save state: %w", err)
 	}
+}
+
+func (g *Game) isCombinationPressed(heldKey ebiten.Key, pressedKey ebiten.Key) bool {
+	return ebiten.IsKeyPressed(heldKey) && inpututil.IsKeyJustPressed(pressedKey)
 }
