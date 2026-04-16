@@ -36,3 +36,6 @@ go.work.sum
 
 # Test roms
 /roms/
+
+# Save files
+*.save

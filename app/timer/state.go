@@ -7,11 +7,18 @@ type TimerState struct {
 	TAC  uint8
 }
 
-func (t *Timer) GetTimerState() TimerState {
+func (t *Timer) GetState() TimerState {
 	return TimerState{
 		DIV:  t.div,
 		TIMA: t.tima,
 		TMA:  t.tma,
 		TAC:  t.tac,
 	}
+}
+
+func (t *Timer) LoadState(state TimerState) {
+	t.div = state.DIV
+	t.tima = state.TIMA
+	t.tma = state.TMA
+	t.tac = state.TAC
 }

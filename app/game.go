@@ -24,12 +24,13 @@ const (
 )
 
 type Game struct {
-	cpu    *cpu.CPU
-	bus    *bus.MMU
-	timer  *timer.Timer
-	joypad *joypad.Joypad
-	ppu    *ppu.PPU
-	io     *io.IO
+	cpu       *cpu.CPU
+	bus       *bus.MMU
+	timer     *timer.Timer
+	joypad    *joypad.Joypad
+	ppu       *ppu.PPU
+	io        *io.IO
+	cartridge *cartridge.Cartridge
 
 	debugOn bool
 	sync    bool
@@ -54,6 +55,7 @@ func NewGame(cart *cartridge.Cartridge, debug bool, sync bool, scale int) *Game 
 		joypad:                j,
 		ppu:                   p,
 		io:                    i,
+		cartridge:             cart,
 		debugOn:               debug,
 		sync:                  sync,
 		speed:                 1,
@@ -90,6 +92,7 @@ func NewGame(cart *cartridge.Cartridge, debug bool, sync bool, scale int) *Game 
 
 func (g *Game) Update() error {
 	const cyclesPerFrame = 70224
+	g.updateSaveState()
 	g.updateInput()
 	g.updatePauseState()
 	g.updateSpeed()
@@ -152,7 +155,7 @@ func (g *Game) drawDebugPanel(screen *ebiten.Image) {
 
 	registerState := g.cpu.GetRegisterState()
 	flagState := g.cpu.GetFlagState()
-	timerState := g.timer.GetTimerState()
+	timerState := g.timer.GetState()
 
 	stats := fmt.Sprintf(
 		"FPS: %0.2f TPS: %0.2f\nSpeed: %d\nAF:  %04X PC:  %04X\nBC:  %04X SP:  %04X\nDE:  %04X HL:  %04X\nIME: %t\n"+
@@ -231,5 +234,15 @@ func (g *Game) updateSpeed() {
 func (g *Game) updateFilter() {
 	if ebiten.IsKeyPressed(ebiten.KeyControl) && inpututil.IsKeyJustPressed(ebiten.KeyG) {
 		g.originalFilterEnabled = !g.originalFilterEnabled
+	}
+}
+
+func (g *Game) updateSaveState() {
+	if !ebiten.IsKeyPressed(ebiten.KeyControl) || !inpututil.IsKeyJustPressed(ebiten.KeyS) {
+		return
+	}
+
+	if err := g.SaveState(); err != nil {
+		fmt.Println("Failed to save state: %w", err)
 	}
 }
