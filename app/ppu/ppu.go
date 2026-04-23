@@ -401,7 +401,7 @@ func (p *PPU) drawWindowLine() {
 func (p *PPU) drawSpriteLine() {
 	height := int16(p.getObjSize())
 
-	for i := range 40 {
+	for i := 39; i >= 0; i-- {
 		offset := uint16(i * 4)
 		y := int16(p.OAM[offset]) - 16
 		x := int16(p.OAM[offset+1]) - 8
@@ -412,6 +412,10 @@ func (p *PPU) drawSpriteLine() {
 			continue
 		}
 
+		if height == 16 {
+			tileID &= 0xFE // in 8x16 mode, bit 0 of tile id is ignored
+		}
+
 		palette := p.OBP0
 		if (attr>>4)&1 == 1 {
 			palette = p.OBP1
@@ -419,6 +423,7 @@ func (p *PPU) drawSpriteLine() {
 
 		flipY := (attr>>6)&1 == 1
 		flipX := (attr>>5)&1 == 1
+		bgPriority := (attr>>7)&1 == 1
 
 		line := int16(p.LY) - y
 		if flipY {
@@ -431,7 +436,7 @@ func (p *PPU) drawSpriteLine() {
 
 		for pixel := range int16(8) {
 			pixelX := x + pixel
-			if pixelX >= 160 {
+			if pixelX < 0 || pixelX >= 160 {
 				continue
 			}
 
@@ -445,7 +450,16 @@ func (p *PPU) drawSpriteLine() {
 				continue // Transparent
 			}
 
-			// TODO: Check priority
+			// Sprite goes under background layer if the priority is 0
+			// and background is not transparent
+			if bgPriority {
+				existing := p.Buffer.RGBAAt(int(pixelX), int(p.LY))
+				bgColor0 := p.getColor(0, p.BGP)
+				if existing != bgColor0 {
+					continue
+				}
+			}
+
 			p.Buffer.SetRGBA(int(pixelX), int(p.LY), p.getColor(colorIdx, palette))
 		}
 	}

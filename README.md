@@ -24,6 +24,7 @@ WASM (on Nginx):
 - `-scale <int>`: Window scale (default: 5)
 - `-debug`: Enable FPS/TPS overlays
 - `-nosync`: Disable frame synchronization (unlocks speed)
+- `-saveFile <string>`: Load state from a save file
 
 ### Controls
 | Game Boy | Keyboard |
@@ -31,7 +32,8 @@ WASM (on Nginx):
 | **D-Pad** | `W`, `A`, `S`, `D` |
 | **A / B** | `Z` / `X` |
 | **Start / Select** | `Enter` / `Shift` |
-
+| **Speed** | `CTRL + 1..5` |
+| **Save State** | `CTRL + S` |
 ---
 
 ## TODO

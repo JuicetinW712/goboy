@@ -17,6 +17,7 @@ func main() {
 	scale := flag.Int("scale", 5, "Multiplier for screen size")
 	debug := flag.Bool("debug", false, "Prints debug info to screen")
 	noSync := flag.Bool("nosync", false, "Will draw to screen even if frame not fully rendered (possible screen tearing)")
+	isFullscreen := flag.Bool("fullscreen", false, "Set the emulator to fullscreen mode")
 	saveFile := flag.String("save-file", "", "File name of save file")
 	flag.Parse()
 
@@ -37,17 +38,18 @@ func main() {
 
 	game := app.NewGame(cart, *debug, !*noSync, *scale)
 
-	if saveFile != nil {
+	// Load save file
+	if *saveFile != "" {
 		saveState, err := app.LoadSaveFromFile(*saveFile)
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(1)
 		}
-
 		game.LoadSaveState(saveState)
 	}
 
 	ebiten.SetWindowTitle("GoBoy")
+	ebiten.SetFullscreen(*isFullscreen)
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}

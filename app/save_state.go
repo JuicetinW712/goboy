@@ -33,10 +33,40 @@ type SaveState struct {
 	TimerState timer.TimerState
 }
 
-func (g *Game) SaveState() error {
-	file, err := os.Create("game.save")
+func (g *Game) LoadSaveState(saveState SaveState) error {
+	if err := g.cartridge.LoadState(saveState.CartState); err != nil {
+		return fmt.Errorf("Failed to load cartridge state: %w", err)
+	}
+	g.ppu.LoadState(&saveState.PPUState)
+	g.timer.LoadState(saveState.TimerState)
+	g.io.LoadState(saveState.IOState)
+	g.bus.LoadState(&saveState.BusState)
+	g.cpu.LoadState(&saveState.CPUState)
+	return nil
+}
+
+func LoadSaveFromFile(fileName string) (SaveState, error) {
+	var saveState SaveState
+
+	file, err := os.Open(fileName)
 	if err != nil {
-		return fmt.Errorf("Failed to create file")
+		return SaveState{}, fmt.Errorf("Failed to read save file: %w", err)
+	}
+	defer file.Close()
+
+	decoder := gob.NewDecoder(file)
+
+	if err := decoder.Decode(&saveState); err != nil {
+		return SaveState{}, fmt.Errorf("Failed to decode save file into struct: %w", err)
+	}
+
+	return saveState, nil
+}
+
+func (g *Game) SaveStateToFile(fileName string) error {
+	file, err := os.Create(fileName)
+	if err != nil {
+		return fmt.Errorf("Failed to create file: %w", err)
 	}
 	defer file.Close()
 
@@ -57,34 +87,4 @@ func (g *Game) SaveState() error {
 	}
 
 	return nil
-}
-
-func (g *Game) LoadSaveState(saveState SaveState) error {
-	if err := g.cartridge.LoadState(saveState.CartState); err != nil {
-		return fmt.Errorf("Failed to load cartridge state: %w", err)
-	}
-	g.ppu.LoadState(&saveState.PPUState)
-	g.timer.LoadState(saveState.TimerState)
-	g.io.LoadState(saveState.IOState)
-	g.bus.LoadState(&saveState.BusState)
-	g.cpu.LoadState(&saveState.CPUState)
-	return nil
-}
-
-func LoadSaveFromFile(fileName string) (SaveState, error) {
-	var saveState SaveState
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		return SaveState{}, fmt.Errorf("Failed to read save file")
-	}
-	defer file.Close()
-
-	decoder := gob.NewDecoder(file)
-
-	if err := decoder.Decode(&saveState); err != nil {
-		return SaveState{}, fmt.Errorf("Failed to decode save file into struct: %w", err)
-	}
-
-	return saveState, nil
 }

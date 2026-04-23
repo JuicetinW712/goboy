@@ -158,7 +158,7 @@ func (g *Game) drawDebugPanel(screen *ebiten.Image) {
 	timerState := g.timer.GetState()
 
 	stats := fmt.Sprintf(
-		"FPS: %0.2f TPS: %0.2f\nSpeed: %d\nAF:  %04X PC:  %04X\nBC:  %04X SP:  %04X\nDE:  %04X HL:  %04X\nIME: %t\n"+
+		"FPS: %0.2f TPS: %0.2f\nSpeed: %d\nAF:  %04X PC:  %04X\nBC:  %04X SP:  %04X\nDE:  %04X HL:  %04X\nIME: %t "+
 			"FLAGS: %s\nDIV: %04X TIMA: %02X\nTMA: %02X   TAC:  %02X",
 		ebiten.ActualFPS(), ebiten.ActualTPS(),
 		g.speed,
@@ -242,7 +242,11 @@ func (g *Game) updateSaveState() {
 		return
 	}
 
-	if err := g.SaveState(); err != nil {
+	title := g.cartridge.GetState().Title
+	// timeStr := time.Now().Format("20060102150405") // yyyyMMddHHmmss
+	fileName := fmt.Sprintf("%s.save", title)
+
+	if err := g.SaveStateToFile(fileName); err != nil {
 		fmt.Println("Failed to save state: %w", err)
 	}
 }
