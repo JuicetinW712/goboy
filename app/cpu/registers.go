@@ -1,0 +1,61 @@
+package cpu
+
+type Registers struct {
+	A uint8
+	F uint8
+	B uint8
+	C uint8
+	D uint8
+	E uint8
+	H uint8
+	L uint8
+}
+
+func CreateRegisters() Registers {
+	return Registers{
+		A: 0x01,
+		F: 0xB0,
+		B: 0x00,
+		C: 0x13,
+		D: 0x00,
+		E: 0xD8,
+		H: 0x01,
+		L: 0x4D,
+	}
+}
+
+func (r *Registers) setAF(val uint16) {
+	r.A = uint8(val >> 8)
+	r.F = uint8(val & 0xFF)
+}
+
+func (r *Registers) getAF() uint16 {
+	return (uint16(r.A) << 8) | uint16(r.F)
+}
+
+func (r *Registers) setBC(val uint16) {
+	r.B = uint8(val >> 8)
+	r.C = uint8(val & 0xFF)
+}
+
+func (r *Registers) getBC() uint16 {
+	return (uint16(r.B) << 8) | uint16(r.C)
+}
+
+func (r *Registers) setDE(val uint16) {
+	r.D = uint8(val >> 8)
+	r.E = uint8(val & 0xFF)
+}
+
+func (r *Registers) getDE() uint16 {
+	return (uint16(r.D) << 8) | uint16(r.E)
+}
+
+func (r *Registers) setHL(val uint16) {
+	r.H = uint8(val >> 8)
+	r.L = uint8(val & 0xFF)
+}
+
+func (r *Registers) getHL() uint16 {
+	return (uint16(r.H) << 8) | uint16(r.L)
+}

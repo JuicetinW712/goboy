@@ -30,3 +30,12 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# WASM
+*.wasm
+
+# Test roms
+/roms/
+
+# Save files
+*.save
