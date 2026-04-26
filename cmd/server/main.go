@@ -10,11 +10,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-//go:embed "roms/wordyl.gb"
+//go:embed "roms/maxpirateeb.gb"
 var romData []byte
 
 func main() {
-	cart := cartridge.NewCartridge("Wordyl", romData)
+	cart := cartridge.NewCartridge("Max Pirate Extra Boom", romData)
 
 	game := app.NewGame(cart, true, true, 3)
 
